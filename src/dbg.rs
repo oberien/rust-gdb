@@ -99,8 +99,12 @@ impl Debugger {
     }
 
     pub fn send_cmd_raw(&mut self, cmd: &str) -> Result<msg::MessageRecord<msg::ResultClass>> {
-        self.stdin.write_all(cmd.as_ref())?;
-        self.stdin.flush()?;
+        if cmd.ends_with("\n") {
+            write!(self.stdin, "{}", cmd)?;
+        } else {
+            writeln!(self.stdin, "{}", cmd)?;
+        }
+        try!(self.stdin.flush());
         self.read_result_record()
     }
 
